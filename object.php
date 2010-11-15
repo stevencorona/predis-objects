@@ -10,16 +10,16 @@ print_r($array);
 
 class Test {
 
-	static $list = array("test");
-	
-	public function __construct() {
-		init_redis_obj($this);
-	}
+  static $list = array("test");
+
+  public function __construct() {
+    init_redis_obj($this);
+  }
 }
 
 
 function init_redis_obj($klass) {
-	foreach($klass::$list as $key) {
-		$klass->$key = new RList($key);
-	}
+  foreach($klass::$list as $key) {
+    $klass->$key = new RList($key);
+  }
 }
