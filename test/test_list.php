@@ -2,49 +2,75 @@
 
 require_once dirname(__FILE__) . "/../list.php";
 
+use \Predis\RedisList;
+
 class test_list extends PHPUnit_Framework_TestCase {
 
 	public function tearDown() {
-		$this->redis   = new Predis\Client('redis://localhost:6379/');
+		$this->redis   = new \Predis\Client('redis://localhost:6379/');
 		$this->redis->del("test_key");
 	}
 
 	public function test_can_create_list() {
-		$list = new RList("test_key");
-		$this->assertTrue($list instanceOf RList);
+		$list = new RedisList("test_key");
+		$this->assertTrue($list instanceOf RedisList);
 	}
 	
 	public function test_simple_set_get() {
-		$list = new RList("test_key");
+		$list = new RedisList("test_key");
 		$list[] = "steve";
 		$list[] = "bob";
 		
-		$this->assertEquals($list[0]);
+		$this->assertEquals("steve", $list[0]);
 		$this->assertEquals("bob", $list[1]);
 	}
 	
 	public function test_complex_set_get() {
-		$list = new RList("test_key");
+		$list = new RedisList("test_key");
 		$list[] = "john";
 		$list[] = "herald";
 		$list[] = "kumar";
 		$list["<<"] = "steve";
 		
-		$list = new RList("test_key");
+		$list = new RedisList("test_key");
 		
 		$this->assertEquals("steve", $list[0]);
 		$this->assertEquals("kumar", $list[3]);
 		$this->assertEquals(4, count($list));
 	}
 	
+	public function test_set_with_index() {
+		$list = new RedisList("test_key");
+		$list[] = "john";
+		$list[] = "herald";
+		$list[] = "kumar";
+		$list[2] = "bob";
+		
+		$this->assertEquals(3, count($list));
+		$this->assertEquals("bob", $list[2]);
+	}
+	
+	public function test_set_with_index_outofbounds() {
+		$list = new RedisList("test_key");
+		$list[] = "john";
+		$list[] = "herald";
+		$list[] = "kumar";
+		
+		$this->setExpectedException('Predis\ServerException');
+		$list[5] = "bob";
+		
+		$this->assertEquals(3, count($list));
+		$this->assertEquals("kumar", $list[2]);
+	}
+	
 	public function test_count() {
-		$list = new RList("test_key");
+		$list = new RedisList("test_key");
 		foreach(range(1,100) as $index) { $list[] = $index; }
 		$this->assertEquals(100, count($list));
 	}
 	
 	public function test_isset() {
-		$list = new RList("test_key");
+		$list = new RedisList("test_key");
 		$list[] = "steve";
 		$list[] = "john";
 		
@@ -53,7 +79,7 @@ class test_list extends PHPUnit_Framework_TestCase {
 	}
 	
 	public function test_data_persists() {
-		$list = new RList("test_key");
+		$list = new RedisList("test_key");
 		$list[] = "john";
 		$list[] = "herald";
 		$list[] = "kumar";
@@ -61,14 +87,14 @@ class test_list extends PHPUnit_Framework_TestCase {
 		
 		unset($list);
 		
-		$list = new RList("test_key");
+		$list = new RedisList("test_key");
 		$this->assertEquals("steve", $list[0]);
 		$this->assertEquals("kumar", $list[3]);
 		$this->assertEquals(4, count($list));
 	}
 	
 	public function test_loop() {
-		$list = new RList("test_key");
+		$list = new RedisList("test_key");
 		$list[] = "john";
 		$list[] = "herald";
 		$list[] = "kumar";
@@ -88,7 +114,7 @@ class test_list extends PHPUnit_Framework_TestCase {
 	
 	public function test_loop_range() {
 		
-		$list = new RList("test_key");
+		$list = new RedisList("test_key");
 		$list[] = "john";
 		$list[] = "herald";
 		$list[] = "kumar";
@@ -108,7 +134,7 @@ class test_list extends PHPUnit_Framework_TestCase {
 	
 	public function test_unset() {
 		
-		$list = new RList("test_key");
+		$list = new RedisList("test_key");
 		$list[] = "john";
 		$list[] = "herald";
 		$list[] = "kumar";
@@ -122,7 +148,7 @@ class test_list extends PHPUnit_Framework_TestCase {
 	}
 	
 	public function test_pop() {
-		$list = new RList("test_key");
+		$list = new RedisList("test_key");
 		$list[] = "john";
 		$list[] = "herald";
 		$list[] = "kumar";
@@ -134,7 +160,7 @@ class test_list extends PHPUnit_Framework_TestCase {
 	}
 	
 	public function test_shift() {
-		$list = new RList("test_key");
+		$list = new RedisList("test_key");
 		$list[] = "john";
 		$list[] = "herald";
 		$list[] = "kumar";
@@ -147,7 +173,7 @@ class test_list extends PHPUnit_Framework_TestCase {
 	
 	public function test_expirations() {
 		
-		$list = new RList("test_key");
+		$list = new RedisList("test_key");
 		
 		$list[] = "data";
 		
@@ -161,7 +187,7 @@ class test_list extends PHPUnit_Framework_TestCase {
 	
 	public function test_expirations_constructor() {
 		
-		$list = new RList("test_key", 60);
+		$list = new RedisList("test_key", 60);
 		$list[] = "data";
 		
 		$this->assertEquals(60, $list->ttl());

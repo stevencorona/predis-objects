@@ -1,4 +1,6 @@
 <?php
+namespace Predis;
+
 error_reporting(E_ALL);
 require_once(dirname(__FILE__)."/predis.php");
 
@@ -9,7 +11,7 @@ require_once(dirname(__FILE__)."/predis.php");
 // * Option to use pipelining
 // * Inheret from a base RedisArrayObject
 
-class RList extends ArrayObject {
+class RedisList extends \ArrayObject {
 	
 	static $LPUSH_KEYS = array("lpush", "<<", "l");
 	
@@ -17,7 +19,7 @@ class RList extends ArrayObject {
 		
 	public function __construct($redis_key, $expiration=null) {
 		$this->redis_key = $redis_key;
-		$this->redis   = new Predis\Client('redis://localhost:6379/');
+		$this->redis   = new Client('redis://localhost:6379/');
 
 		if ($expiration !== null) {
 			$this->expire($expiration);
@@ -53,7 +55,7 @@ class RList extends ArrayObject {
 			$end = $this->count();
 		}
 		$range = $this->redis->lrange($this->redis_key, $start, --$end);
-		return new ArrayIterator($range);
+		return new \ArrayIterator($range);
 	}
 	
 	public function each($opts, $block) {
