@@ -2,29 +2,33 @@
 
 $list = new \Predis\RedisList("key");
 
-$list[] = "foo";
-$list[] = "bar";
-$list[] = "lorem";
-$list[] = "ipsum";
+$list[] = "foo";   // r->rpush(key, foo)
+$list[] = "bar";   // r->rpush(key, bar)
+$list[] = "lorem"; // r->rpush(key, lorem)
+$list[] = "ipsum"; // r->rpush(key, ipsum)
 
-// array(foo, bar, lorem, ipsum)
+$list["<<"] = "php5"; // r->lpush(key, php5)
 
-$list["<<"] = "php5"; // array(php5, foo, bar, lorem, ipsum)
+// array(php5, foo, bar, lorem, ipsum)
 
-count($list); // 5
+count($list); // r->llen(key)
 
-foreach($list as $data) {
+// 5
+
+foreach($list as $data) { // r->lrange(key, 0, r->llen(key))
   echo $data;
 }
 
-$list->each(2, function($value) {
+$list->each(2, function($value) { r->lrange(key, 0, 2)
   echo $value;
 });
 
 // php5, foo
 
-$list->pop(); // ipsum
-$list->shift(); // php5
+$list->pop(); // r->lpop(key)
+// ipsum
+$list->shift(); // r->lpop (key)
+// php5
 
 
 // once you cast the list as an array, you can use all of the normal php array
