@@ -13,15 +13,15 @@ Example:
     $list[] = "lorem"
     $list[] = "ipsum";
 
-   // array(foo, bar, lorem, ipsum)
+    // array(foo, bar, lorem, ipsum)
 
-   $list["<<"] = "php5"; // array(php5, foo, bar, lorem, ipsum)
+    $list["<<"] = "php5"; // array(php5, foo, bar, lorem, ipsum)
 
-   count($list); // 5
+    count($list); // 5
 
-   foreach($list as $data) {
-     echo $data;
-   }
+    foreach($list as $data) {
+      echo $data;
+    }
 
     $list->each(2, function($value) {
       echo $value;
